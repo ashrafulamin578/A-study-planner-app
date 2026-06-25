@@ -1,22 +1,39 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Study Planner API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: exam
+    description: Exam settings
+  - name: subjects
+    description: Course outline subjects
+  - name: topics
+    description: Subject topics
+  - name: tasks
+    description: Daily tasks
+  - name: routine
+    description: Weekly routine
+  - name: notes
+    description: Study notes
+  - name: resources
+    description: Free/paid resources
+  - name: settings
+    description: App settings
+  - name: progress
+    description: Progress summaries
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +41,586 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /exam:
+    get:
+      operationId: getExam
+      tags: [exam]
+      summary: Get exam info
+      responses:
+        "200":
+          description: Exam info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exam"
+        "404":
+          description: Not set
+    put:
+      operationId: upsertExam
+      tags: [exam]
+      summary: Create or update exam info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamInput"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exam"
+
+  /subjects:
+    get:
+      operationId: listSubjects
+      tags: [subjects]
+      summary: List all subjects
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+    post:
+      operationId: createSubject
+      tags: [subjects]
+      summary: Create a subject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+
+  /subjects/{id}:
+    patch:
+      operationId: updateSubject
+      tags: [subjects]
+      summary: Update a subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+    delete:
+      operationId: deleteSubject
+      tags: [subjects]
+      summary: Delete a subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /topics:
+    get:
+      operationId: listTopics
+      tags: [topics]
+      summary: List topics, optionally filtered by subject
+      parameters:
+        - name: subjectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+    post:
+      operationId: createTopic
+      tags: [topics]
+      summary: Create a topic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopicInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Topic"
+
+  /topics/{id}:
+    patch:
+      operationId: updateTopic
+      tags: [topics]
+      summary: Update a topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopicUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Topic"
+    delete:
+      operationId: deleteTopic
+      tags: [topics]
+      summary: Delete a topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List tasks
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+        - name: subjectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{id}:
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /routine:
+    get:
+      operationId: listRoutineItems
+      tags: [routine]
+      summary: List all routine items
+      parameters:
+        - name: day
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of routine items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoutineItem"
+    post:
+      operationId: createRoutineItem
+      tags: [routine]
+      summary: Create a routine item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoutineItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoutineItem"
+
+  /routine/{id}:
+    patch:
+      operationId: updateRoutineItem
+      tags: [routine]
+      summary: Update a routine item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoutineItemUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoutineItem"
+    delete:
+      operationId: deleteRoutineItem
+      tags: [routine]
+      summary: Delete a routine item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /notes:
+    get:
+      operationId: listNotes
+      tags: [notes]
+      summary: List notes
+      parameters:
+        - name: subjectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Create a note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /notes/{id}:
+    patch:
+      operationId: updateNote
+      tags: [notes]
+      summary: Update a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+    delete:
+      operationId: deleteNote
+      tags: [notes]
+      summary: Delete a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /resources:
+    get:
+      operationId: listResources
+      tags: [resources]
+      summary: List resources
+      parameters:
+        - name: subjectName
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resource"
+    post:
+      operationId: createResource
+      tags: [resources]
+      summary: Create a resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+
+  /resources/{id}:
+    patch:
+      operationId: updateResource
+      tags: [resources]
+      summary: Update a resource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+    delete:
+      operationId: deleteResource
+      tags: [resources]
+      summary: Delete a resource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get app settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppSettings"
+    put:
+      operationId: upsertSettings
+      tags: [settings]
+      summary: Save app settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppSettingsInput"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppSettings"
+
+  /progress:
+    get:
+      operationId: getProgress
+      tags: [progress]
+      summary: Get course progress per subject
+      responses:
+        "200":
+          description: Progress data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressSummary"
+
+  /data/export:
+    get:
+      operationId: exportData
+      tags: [settings]
+      summary: Export all data as JSON
+      responses:
+        "200":
+          description: Full data export
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /data/import:
+    post:
+      operationId: importData
+      tags: [settings]
+      summary: Import data from JSON backup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportPayload"
+      responses:
+        "200":
+          description: Imported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required:
+                  - success
+
+  /data/reset:
+    post:
+      operationId: resetData
+      tags: [settings]
+      summary: Reset all user data
+      responses:
+        "200":
+          description: Reset done
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required:
+                  - success
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +631,359 @@ components:
       required:
         - status
 
+    Exam:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        examDate:
+          type: string
+        semesterCount:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - examDate
+        - semesterCount
+        - createdAt
+
+    ExamInput:
+      type: object
+      properties:
+        name:
+          type: string
+        examDate:
+          type: string
+        semesterCount:
+          type: integer
+      required:
+        - name
+        - examDate
+        - semesterCount
+
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - createdAt
+
+    SubjectInput:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+    SubjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+
+    Topic:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: integer
+        name:
+          type: string
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - subjectId
+        - name
+        - completed
+        - createdAt
+
+    TopicInput:
+      type: object
+      properties:
+        subjectId:
+          type: integer
+        name:
+          type: string
+        completed:
+          type: boolean
+      required:
+        - subjectId
+        - name
+
+    TopicUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        completed:
+          type: boolean
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: ["integer", "null"]
+        name:
+          type: string
+        completed:
+          type: boolean
+        date:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - completed
+        - date
+        - createdAt
+        - subjectId
+
+    TaskInput:
+      type: object
+      properties:
+        subjectId:
+          type: ["integer", "null"]
+        name:
+          type: string
+        date:
+          type: string
+        completed:
+          type: boolean
+      required:
+        - name
+        - date
+
+    TaskUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        completed:
+          type: boolean
+        subjectId:
+          type: ["integer", "null"]
+
+    RoutineItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        day:
+          type: string
+        subjectId:
+          type: ["integer", "null"]
+        label:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - day
+        - label
+        - createdAt
+        - subjectId
+
+    RoutineItemInput:
+      type: object
+      properties:
+        day:
+          type: string
+        subjectId:
+          type: ["integer", "null"]
+        label:
+          type: string
+      required:
+        - day
+        - label
+
+    RoutineItemUpdate:
+      type: object
+      properties:
+        day:
+          type: string
+        subjectId:
+          type: ["integer", "null"]
+        label:
+          type: string
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: ["integer", "null"]
+        classLabel:
+          type: string
+        content:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - classLabel
+        - createdAt
+        - subjectId
+        - content
+        - photoUrl
+
+    NoteInput:
+      type: object
+      properties:
+        subjectId:
+          type: ["integer", "null"]
+        classLabel:
+          type: string
+        content:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+      required:
+        - classLabel
+
+    NoteUpdate:
+      type: object
+      properties:
+        classLabel:
+          type: string
+        content:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        subjectId:
+          type: ["integer", "null"]
+
+    Resource:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectName:
+          type: string
+        topicName:
+          type: string
+        url:
+          type: string
+        isPaid:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - subjectName
+        - topicName
+        - url
+        - isPaid
+        - createdAt
+
+    ResourceInput:
+      type: object
+      properties:
+        subjectName:
+          type: string
+        topicName:
+          type: string
+        url:
+          type: string
+        isPaid:
+          type: boolean
+      required:
+        - subjectName
+        - topicName
+        - url
+
+    ResourceUpdate:
+      type: object
+      properties:
+        subjectName:
+          type: string
+        topicName:
+          type: string
+        url:
+          type: string
+        isPaid:
+          type: boolean
+
+    AppSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        theme:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - theme
+        - updatedAt
+
+    AppSettingsInput:
+      type: object
+      properties:
+        theme:
+          type: string
+      required:
+        - theme
+
+    SubjectProgress:
+      type: object
+      properties:
+        subjectId:
+          type: integer
+        subjectName:
+          type: string
+        totalTopics:
+          type: integer
+        completedTopics:
+          type: integer
+        percentage:
+          type: integer
+      required:
+        - subjectId
+        - subjectName
+        - totalTopics
+        - completedTopics
+        - percentage
+
+    ProgressSummary:
+      type: object
+      properties:
+        totalSubjects:
+          type: integer
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectProgress"
+      required:
+        - totalSubjects
+        - subjects
+
+    ImportPayload:
+      type: object
+      properties:
+        data:
+          type: object
+      required:
+        - data
