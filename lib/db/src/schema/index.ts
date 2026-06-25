@@ -91,6 +91,8 @@ export type Resource = typeof resourcesTable.$inferSelect;
 export const appSettingsTable = pgTable("app_settings", {
   id: serial("id").primaryKey(),
   theme: text("theme").notNull().default("light"),
+  userName: text("user_name"),
+  universityRoutineUrl: text("university_routine_url"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
