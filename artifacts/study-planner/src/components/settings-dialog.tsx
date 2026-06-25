@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,14 +14,14 @@ import { useTheme } from "./theme-provider";
 import { useGetExam, useUpsertExam, useGetSettings, useUpsertSettings } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetExamQueryKey, getGetSettingsQueryKey } from "@workspace/api-client-react";
-import { Settings, Settings2 } from "lucide-react";
+import { Settings2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function SettingsDialog() {
   const { theme: currentTheme } = useTheme();
   const { data: exam } = useGetExam();
   const { data: settings } = useGetSettings();
-  
+
   const upsertExam = useUpsertExam();
   const upsertSettings = useUpsertSettings();
   const queryClient = useQueryClient();
@@ -34,7 +33,6 @@ export function SettingsDialog() {
   const [semesterCount, setSemesterCount] = useState(exam?.semesterCount?.toString() || "");
   const [theme, setTheme] = useState(settings?.theme || currentTheme);
 
-  // Sync state when dialog opens
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       setExamName(exam?.name || "");
@@ -47,22 +45,20 @@ export function SettingsDialog() {
 
   const handleSave = async () => {
     try {
-      await upsertExam.mutateAsync({
-        data: {
-          name: examName,
-          examDate: new Date(examDate).toISOString(),
-          semesterCount: parseInt(semesterCount) || 1,
-        }
-      });
-      await upsertSettings.mutateAsync({
-        data: {
-          theme
-        }
-      });
-      
+      if (examName && examDate) {
+        await upsertExam.mutateAsync({
+          data: {
+            name: examName,
+            examDate: examDate,
+            semesterCount: parseInt(semesterCount) || 1,
+          },
+        });
+      }
+      await upsertSettings.mutateAsync({ data: { theme } });
+
       queryClient.invalidateQueries({ queryKey: getGetExamQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
-      
+
       toast({ title: "Settings saved" });
       setOpen(false);
     } catch (e) {
@@ -91,27 +87,47 @@ export function SettingsDialog() {
               <SelectContent>
                 <SelectItem value="light">Light</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="pink-light">Girls Light (Pink)</SelectItem>
-                <SelectItem value="dark-red">Boys Dark (Red)</SelectItem>
-                <SelectItem value="dark-blue">Boys Dark (Blue)</SelectItem>
+                <SelectItem value="pink-light">Pink Light</SelectItem>
+                <SelectItem value="dark-red">Dark Red</SelectItem>
+                <SelectItem value="dark-blue">Dark Blue</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
             <Label>Exam Name</Label>
-            <Input value={examName} onChange={e => setExamName(e.target.value)} placeholder="Finals, Midterms..." />
+            <Input
+              value={examName}
+              onChange={(e) => setExamName(e.target.value)}
+              placeholder="Finals, Midterms..."
+            />
           </div>
           <div className="grid gap-2">
             <Label>Exam Date</Label>
-            <Input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} />
+            <Input
+              type="date"
+              value={examDate}
+              onChange={(e) => setExamDate(e.target.value)}
+            />
           </div>
           <div className="grid gap-2">
-            <Label>Semester Count</Label>
-            <Input type="number" value={semesterCount} onChange={e => setSemesterCount(e.target.value)} min={1} />
+            <Label>Semester Number</Label>
+            <Input
+              type="number"
+              value={semesterCount}
+              onChange={(e) => setSemesterCount(e.target.value)}
+              min={1}
+              placeholder="e.g. 3"
+            />
           </div>
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={upsertExam.isPending || upsertSettings.isPending}>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={upsertExam.isPending || upsertSettings.isPending}
+          >
             Save changes
           </Button>
         </div>

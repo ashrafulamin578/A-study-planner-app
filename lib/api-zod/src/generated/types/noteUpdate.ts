@@ -14,4 +14,6 @@ export interface NoteUpdate {
   photoUrl?: string | null;
   /** @nullable */
   subjectId?: number | null;
+  /** @nullable */
+  noteGroupName?: string | null;
 }

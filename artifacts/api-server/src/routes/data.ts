@@ -47,13 +47,20 @@ router.post("/import", async (req, res) => {
     topics?: Array<{ subjectId: number; name: string; completed: boolean }>;
     tasks?: Array<{ subjectId?: number | null; name: string; date: string; completed: boolean }>;
     routineItems?: Array<{ day: string; subjectId?: number | null; label: string }>;
-    notes?: Array<{ subjectId?: number | null; classLabel: string; content?: string | null; photoUrl?: string | null }>;
+    notes?: Array<{ subjectId?: number | null; noteGroupName?: string | null; classLabel: string; content?: string | null; photoUrl?: string | null }>;
     resources?: Array<{ subjectName: string; topicName: string; url: string; isPaid: boolean }>;
     exams?: Array<{ name: string; examDate: string; semesterCount: number }>;
     settings?: Array<{ theme: string }>;
   };
 
   await db.delete(subjectsTable);
+  await db.delete(tasksTable);
+  await db.delete(notesTable);
+  await db.delete(routineItemsTable);
+  await db.delete(resourcesTable);
+  await db.delete(examsTable);
+  await db.delete(appSettingsTable);
+
   if (d.subjects && d.subjects.length > 0) {
     await db.insert(subjectsTable).values(d.subjects.map((s) => ({ name: s.name })));
   }
@@ -82,6 +89,7 @@ router.post("/import", async (req, res) => {
   if (d.notes && d.notes.length > 0) {
     await db.insert(notesTable).values(d.notes.map((n) => ({
       subjectId: n.subjectId ?? null,
+      noteGroupName: n.noteGroupName ?? null,
       classLabel: n.classLabel,
       content: n.content ?? null,
       photoUrl: n.photoUrl ?? null,
@@ -96,7 +104,6 @@ router.post("/import", async (req, res) => {
     })));
   }
   if (d.exams && d.exams.length > 0) {
-    await db.delete(examsTable);
     await db.insert(examsTable).values(d.exams.map((e) => ({
       name: e.name,
       examDate: e.examDate,
@@ -104,7 +111,6 @@ router.post("/import", async (req, res) => {
     })));
   }
   if (d.settings && d.settings.length > 0) {
-    await db.delete(appSettingsTable);
     await db.insert(appSettingsTable).values(d.settings.map((s) => ({ theme: s.theme })));
   }
 
@@ -113,6 +119,10 @@ router.post("/import", async (req, res) => {
 
 router.post("/reset", async (req, res) => {
   await db.delete(subjectsTable);
+  await db.delete(tasksTable);
+  await db.delete(notesTable);
+  await db.delete(routineItemsTable);
+  await db.delete(resourcesTable);
   await db.delete(examsTable);
   await db.delete(appSettingsTable);
   res.json({ success: true });

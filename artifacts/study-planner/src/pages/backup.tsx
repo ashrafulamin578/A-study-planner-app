@@ -1,5 +1,8 @@
-import { 
-  useExportData, useImportData, useResetData, useGetProgress, getGetProgressQueryKey
+import {
+  useExportData,
+  useImportData,
+  useResetData,
+  useGetProgress,
 } from "@workspace/api-client-react";
 import { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -20,11 +23,13 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function Backup() {
-  const { refetch: exportData, isFetching: isExporting } = useExportData({ query: { enabled: false } });
+  const { refetch: exportData, isFetching: isExporting } = useExportData({
+    query: { enabled: false },
+  });
   const importData = useImportData();
   const resetData = useResetData();
   const { data: progress } = useGetProgress();
-  
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,15 +38,16 @@ export default function Backup() {
     try {
       const result = await exportData();
       if (result.data) {
-        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `study-planner-backup-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const jsonStr = JSON.stringify(result.data, null, 2);
+        const dataUrl =
+          "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+        const filename = `study-planner-backup-${new Date().toISOString().split("T")[0]}.json`;
+        const link = document.createElement("a");
+        link.setAttribute("href", dataUrl);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         toast({ title: "Backup downloaded successfully" });
       }
     } catch (e) {
@@ -64,6 +70,7 @@ export default function Backup() {
         }
       };
       reader.readAsText(file);
+      e.target.value = "";
     }
   };
 
@@ -79,26 +86,31 @@ export default function Backup() {
 
   const handleGmailSummary = () => {
     if (!progress) return;
-    
-    let body = "Study Progress Summary:\n\n";
+    let body = "My Study Progress Summary\n\n";
     if (progress.subjects && progress.subjects.length > 0) {
-      progress.subjects.forEach(sub => {
-        body += `- ${sub.subjectName}: ${Math.round(sub.percentage)}% (${sub.completedTopics}/${sub.totalTopics} topics)\n`;
+      progress.subjects.forEach((sub) => {
+        const bar = "█".repeat(Math.round(sub.percentage / 10)) + "░".repeat(10 - Math.round(sub.percentage / 10));
+        body += `${sub.subjectName}: ${bar} ${Math.round(sub.percentage)}% (${sub.completedTopics}/${sub.totalTopics} topics)\n`;
       });
     } else {
       body += "No subjects configured yet.\n";
     }
-    
-    const subject = encodeURIComponent("Weekly Study Progress Update");
+    body += `\nGenerated on ${new Date().toLocaleDateString()}`;
+    const subjectLine = encodeURIComponent("Weekly Study Progress Update");
     const encodedBody = encodeURIComponent(body);
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${encodedBody}`, '_blank');
+    window.open(
+      `https://mail.google.com/mail/?view=cm&fs=1&su=${subjectLine}&body=${encodedBody}`,
+      "_blank"
+    );
   };
 
   return (
     <div className="space-y-8 max-w-3xl">
       <div>
         <h1 className="text-4xl font-bold tracking-tight">Data & Backup</h1>
-        <p className="text-muted-foreground mt-2">Manage your study data, export backups, and send progress reports.</p>
+        <p className="text-muted-foreground mt-2">
+          Manage your study data, export backups, and send progress reports.
+        </p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -107,11 +119,13 @@ export default function Backup() {
             <CardTitle className="flex items-center gap-2">
               <Download className="w-5 h-5 text-primary" /> Export Data
             </CardTitle>
-            <CardDescription>Download a complete copy of your planner data as a JSON file.</CardDescription>
+            <CardDescription>
+              Download a complete copy of your planner as a <strong>.json</strong> backup file you can re-import any time.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={handleExport} disabled={isExporting} className="w-full">
-              {isExporting ? "Preparing Backup..." : "Download Backup"}
+              {isExporting ? "Preparing…" : "Download Backup (.json)"}
             </Button>
           </CardContent>
         </Card>
@@ -121,18 +135,25 @@ export default function Backup() {
             <CardTitle className="flex items-center gap-2">
               <Upload className="w-5 h-5 text-primary" /> Import Data
             </CardTitle>
-            <CardDescription>Restore your planner from a previously downloaded JSON backup file.</CardDescription>
+            <CardDescription>
+              Restore from a previously downloaded <strong>.json</strong> backup file. Current data will be replaced.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <input 
-              type="file" 
-              accept=".json" 
-              className="hidden" 
-              ref={fileInputRef} 
-              onChange={handleImport} 
+            <input
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImport}
             />
-            <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full" disabled={importData.isPending}>
-              {importData.isPending ? "Importing..." : "Choose Backup File"}
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full"
+              disabled={importData.isPending}
+            >
+              {importData.isPending ? "Importing…" : "Choose Backup File (.json)"}
             </Button>
           </CardContent>
         </Card>
@@ -144,12 +165,14 @@ export default function Backup() {
             <Mail className="w-5 h-5 text-blue-500" /> Share Progress via Gmail
           </CardTitle>
           <CardDescription>
-            Generate an automated summary of your course progress and open a new draft in Gmail.
-            Great for keeping parents, mentors, or tutors updated.
+            Click below to open a Gmail draft pre-filled with your current study progress summary. Great for updating a mentor, parent, or study partner.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={handleGmailSummary} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button
+            onClick={handleGmailSummary}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             <Mail className="w-4 h-4 mr-2" /> Open Gmail Draft
           </Button>
         </CardContent>
@@ -161,7 +184,7 @@ export default function Backup() {
             <AlertTriangle className="w-5 h-5" /> Danger Zone
           </CardTitle>
           <CardDescription className="text-destructive/80">
-            Permanently delete all subjects, notes, routines, and resources. This cannot be undone unless you have a backup.
+            Permanently erase all subjects, topics, notes, tasks, routines, resources, and exam settings. This cannot be undone — export a backup first.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -171,15 +194,18 @@ export default function Backup() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>Erase everything?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete all your subjects, topics, notes, tasks, routine items, and resources. Make sure you have exported a backup first!
+                  This will permanently delete all your subjects, topics, notes, tasks, routine items, resources, and exam settings. Make sure you have exported a backup first.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReset} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Yes, Erase Everything
+                <AlertDialogAction
+                  onClick={handleReset}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Yes, erase everything
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

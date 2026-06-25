@@ -9,6 +9,8 @@
 export interface NoteInput {
   /** @nullable */
   subjectId?: number | null;
+  /** @nullable */
+  noteGroupName?: string | null;
   classLabel: string;
   /** @nullable */
   content?: string | null;

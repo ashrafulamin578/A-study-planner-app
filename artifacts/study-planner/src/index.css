@@ -303,6 +303,40 @@
   --sidebar-ring: 220 70% 50%;
 }
 
+@keyframes jelly-slide-in {
+  0%   { transform: translateX(72px) scale(0.97); opacity: 0; }
+  35%  { transform: translateX(-14px) scale(1.01); opacity: 1; }
+  55%  { transform: translateX(7px) scale(0.997); }
+  72%  { transform: translateX(-4px) scale(1.002); }
+  85%  { transform: translateX(2px); }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes color-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.jelly-page-enter {
+  animation: jelly-slide-in 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.jelly-color-bar {
+  background: linear-gradient(
+    270deg,
+    hsl(var(--primary)),
+    hsl(330 70% 65%),
+    hsl(200 70% 60%),
+    hsl(var(--primary)),
+    hsl(160 60% 55%),
+    hsl(280 60% 65%)
+  );
+  background-size: 400% 400%;
+  animation: color-flow 6s ease infinite;
+  opacity: 0.55;
+}
+
 @layer base {
   * {
     @apply border-border;

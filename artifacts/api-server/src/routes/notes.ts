@@ -14,15 +14,22 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { subjectId, classLabel, content, photoUrl } = req.body as {
+  const { subjectId, noteGroupName, classLabel, content, photoUrl } = req.body as {
     subjectId?: number | null;
+    noteGroupName?: string | null;
     classLabel: string;
     content?: string | null;
     photoUrl?: string | null;
   };
   const created = await db
     .insert(notesTable)
-    .values({ subjectId: subjectId ?? null, classLabel, content: content ?? null, photoUrl: photoUrl ?? null })
+    .values({
+      subjectId: subjectId ?? null,
+      noteGroupName: noteGroupName ?? null,
+      classLabel,
+      content: content ?? null,
+      photoUrl: photoUrl ?? null,
+    })
     .returning();
   const r = created[0];
   res.status(201).json({ ...r, createdAt: r.createdAt.toISOString() });
@@ -30,11 +37,12 @@ router.post("/", async (req, res) => {
 
 router.patch("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const { classLabel, content, photoUrl, subjectId } = req.body as {
+  const { classLabel, content, photoUrl, subjectId, noteGroupName } = req.body as {
     classLabel?: string;
     content?: string | null;
     photoUrl?: string | null;
     subjectId?: number | null;
+    noteGroupName?: string | null;
   };
   const updated = await db
     .update(notesTable)
@@ -43,6 +51,7 @@ router.patch("/:id", async (req, res) => {
       ...(content !== undefined && { content }),
       ...(photoUrl !== undefined && { photoUrl }),
       ...(subjectId !== undefined && { subjectId }),
+      ...(noteGroupName !== undefined && { noteGroupName }),
     })
     .where(eq(notesTable.id, id))
     .returning();

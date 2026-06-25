@@ -314,6 +314,7 @@ export const ListNotesQueryParams = zod.object({
 export const ListNotesResponseItem = zod.object({
   "id": zod.number(),
   "subjectId": zod.number().nullable(),
+  "noteGroupName": zod.string().nullable(),
   "classLabel": zod.string(),
   "content": zod.string().nullable(),
   "photoUrl": zod.string().nullable(),
@@ -327,6 +328,7 @@ export const ListNotesResponse = zod.array(ListNotesResponseItem)
  */
 export const CreateNoteBody = zod.object({
   "subjectId": zod.number().nullish(),
+  "noteGroupName": zod.string().nullish(),
   "classLabel": zod.string(),
   "content": zod.string().nullish(),
   "photoUrl": zod.string().nullish()
@@ -335,6 +337,7 @@ export const CreateNoteBody = zod.object({
 export const CreateNoteResponse = zod.object({
   "id": zod.number(),
   "subjectId": zod.number().nullable(),
+  "noteGroupName": zod.string().nullable(),
   "classLabel": zod.string(),
   "content": zod.string().nullable(),
   "photoUrl": zod.string().nullable(),
@@ -353,12 +356,14 @@ export const UpdateNoteBody = zod.object({
   "classLabel": zod.string().optional(),
   "content": zod.string().nullish(),
   "photoUrl": zod.string().nullish(),
-  "subjectId": zod.number().nullish()
+  "subjectId": zod.number().nullish(),
+  "noteGroupName": zod.string().nullish()
 })
 
 export const UpdateNoteResponse = zod.object({
   "id": zod.number(),
   "subjectId": zod.number().nullable(),
+  "noteGroupName": zod.string().nullable(),
   "classLabel": zod.string(),
   "content": zod.string().nullable(),
   "photoUrl": zod.string().nullable(),

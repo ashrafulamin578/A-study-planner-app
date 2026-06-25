@@ -832,6 +832,8 @@ components:
           type: integer
         subjectId:
           type: ["integer", "null"]
+        noteGroupName:
+          type: ["string", "null"]
         classLabel:
           type: string
         content:
@@ -847,12 +849,15 @@ components:
         - subjectId
         - content
         - photoUrl
+        - noteGroupName
 
     NoteInput:
       type: object
       properties:
         subjectId:
           type: ["integer", "null"]
+        noteGroupName:
+          type: ["string", "null"]
         classLabel:
           type: string
         content:
@@ -873,6 +878,8 @@ components:
           type: ["string", "null"]
         subjectId:
           type: ["integer", "null"]
+        noteGroupName:
+          type: ["string", "null"]
 
     Resource:
       type: object

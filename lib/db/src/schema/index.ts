@@ -64,6 +64,7 @@ export type RoutineItem = typeof routineItemsTable.$inferSelect;
 export const notesTable = pgTable("notes", {
   id: serial("id").primaryKey(),
   subjectId: integer("subject_id").references(() => subjectsTable.id, { onDelete: "set null" }),
+  noteGroupName: text("note_group_name"),
   classLabel: text("class_label").notNull(),
   content: text("content"),
   photoUrl: text("photo_url"),

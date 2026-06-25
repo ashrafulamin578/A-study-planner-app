@@ -108,6 +108,8 @@ export interface Note {
   id: number;
   /** @nullable */
   subjectId: number | null;
+  /** @nullable */
+  noteGroupName: string | null;
   classLabel: string;
   /** @nullable */
   content: string | null;
@@ -119,6 +121,8 @@ export interface Note {
 export interface NoteInput {
   /** @nullable */
   subjectId?: number | null;
+  /** @nullable */
+  noteGroupName?: string | null;
   classLabel: string;
   /** @nullable */
   content?: string | null;
@@ -134,6 +138,8 @@ export interface NoteUpdate {
   photoUrl?: string | null;
   /** @nullable */
   subjectId?: number | null;
+  /** @nullable */
+  noteGroupName?: string | null;
 }
 
 export interface Resource {

@@ -1,9 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { BookOpen, Calendar, FileText, Download, LayoutDashboard, Plus, Play } from "lucide-react";
 import { SettingsDialog } from "./settings-dialog";
-import { TooltipProvider, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
-import { Button } from "react-day-picker";
-import { Tooltip } from "recharts";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -32,8 +31,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
             const Icon = item.icon;
             const isActive = location === item.href;
             return (
-              <Link key={item.href} href={item.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? "bg-primary text-primary-foreground font-medium shadow-md shadow-primary/20" : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"}`}>
-                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                  isActive
+                    ? "bg-primary text-primary-foreground font-medium shadow-md shadow-primary/20 active-nav-item"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+                }`}
+              >
+                <Icon
+                  className={`w-5 h-5 transition-transform duration-200 ${
+                    isActive ? "scale-110" : "group-hover:scale-110"
+                  }`}
+                />
                 <span>{item.label}</span>
               </Link>
             );
@@ -56,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </TooltipTrigger>
               <TooltipContent>Add Subject</TooltipContent>
             </Tooltip>
-            
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link href="/routine">
@@ -71,10 +82,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           <SettingsDialog />
         </header>
-        
+
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-6 md:p-12">
-          <div className="max-w-5xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Jelly color bar */}
+          <div className="jelly-color-bar mb-6 rounded-full h-1 w-full" />
+          <div key={location} className="max-w-5xl mx-auto pb-20 jelly-page-enter">
             {children}
           </div>
         </div>
