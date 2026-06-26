@@ -7,7 +7,6 @@
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "tsc",
     "start": "node ./dist/index.js",
-    
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",
