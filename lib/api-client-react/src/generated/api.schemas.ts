@@ -168,11 +168,19 @@ export interface ResourceUpdate {
 export interface AppSettings {
   id: number;
   theme: string;
+  /** @nullable */
+  userName: string | null;
+  /** @nullable */
+  universityRoutineUrl: string | null;
   updatedAt: string;
 }
 
 export interface AppSettingsInput {
   theme: string;
+  /** @nullable */
+  userName?: string | null;
+  /** @nullable */
+  universityRoutineUrl?: string | null;
 }
 
 export interface SubjectProgress {

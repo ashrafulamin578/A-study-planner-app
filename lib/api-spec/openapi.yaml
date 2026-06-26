@@ -939,11 +939,17 @@ components:
           type: integer
         theme:
           type: string
+        userName:
+          type: ["string", "null"]
+        universityRoutineUrl:
+          type: ["string", "null"]
         updatedAt:
           type: string
       required:
         - id
         - theme
+        - userName
+        - universityRoutineUrl
         - updatedAt
 
     AppSettingsInput:
@@ -951,6 +957,10 @@ components:
       properties:
         theme:
           type: string
+        userName:
+          type: ["string", "null"]
+        universityRoutineUrl:
+          type: ["string", "null"]
       required:
         - theme
 

@@ -9,5 +9,9 @@
 export interface AppSettings {
   id: number;
   theme: string;
+  /** @nullable */
+  userName: string | null;
+  /** @nullable */
+  universityRoutineUrl: string | null;
   updatedAt: string;
 }

@@ -459,6 +459,8 @@ export const DeleteResourceResponse = zod.void()
 export const GetSettingsResponse = zod.object({
   "id": zod.number(),
   "theme": zod.string(),
+  "userName": zod.string().nullable(),
+  "universityRoutineUrl": zod.string().nullable(),
   "updatedAt": zod.string()
 })
 
@@ -467,12 +469,16 @@ export const GetSettingsResponse = zod.object({
  * @summary Save app settings
  */
 export const UpsertSettingsBody = zod.object({
-  "theme": zod.string()
+  "theme": zod.string(),
+  "userName": zod.string().nullish(),
+  "universityRoutineUrl": zod.string().nullish()
 })
 
 export const UpsertSettingsResponse = zod.object({
   "id": zod.number(),
   "theme": zod.string(),
+  "userName": zod.string().nullable(),
+  "universityRoutineUrl": zod.string().nullable(),
   "updatedAt": zod.string()
 })
 

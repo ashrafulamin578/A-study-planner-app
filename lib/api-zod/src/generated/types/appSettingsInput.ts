@@ -8,4 +8,8 @@
 
 export interface AppSettingsInput {
   theme: string;
+  /** @nullable */
+  userName?: string | null;
+  /** @nullable */
+  universityRoutineUrl?: string | null;
 }
