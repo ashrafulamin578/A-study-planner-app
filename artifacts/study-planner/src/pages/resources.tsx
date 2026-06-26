@@ -13,6 +13,11 @@ import { Plus, Pencil, Trash2, ExternalLink, PlaySquare } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Resources() {
   const { data: resources, isLoading } = useListResources();
@@ -27,29 +32,17 @@ export default function Resources() {
 
   const handleAdd = () => {
     if (!newSubjectName.trim() || !newTopicName.trim() || !newUrl.trim()) return;
-    
     createResource.mutate({
-      data: {
-        subjectName: newSubjectName,
-        topicName: newTopicName,
-        url: newUrl,
-        isPaid: newIsPaid
-      }
+      data: { subjectName: newSubjectName, topicName: newTopicName, url: newUrl, isPaid: newIsPaid }
     }, {
       onSuccess: () => {
-        setOpen(false);
-        setNewSubjectName("");
-        setNewTopicName("");
-        setNewUrl("");
-        setNewIsPaid(false);
+        setOpen(false); setNewSubjectName(""); setNewTopicName(""); setNewUrl(""); setNewIsPaid(false);
         queryClient.invalidateQueries({ queryKey: getListResourcesQueryKey() });
       }
     });
   };
 
-  if (isLoading) {
-    return <div className="space-y-4"><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /></div>;
-  }
+  if (isLoading) return <div className="space-y-4"><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /></div>;
 
   return (
     <div className="space-y-8">
@@ -60,14 +53,10 @@ export default function Resources() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" /> Add Resource
-            </Button>
+            <Button><Plus className="w-4 h-4 mr-2" /> Add Resource</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Resource</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Add New Resource</DialogTitle></DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label>Subject Name</Label>
@@ -103,9 +92,7 @@ export default function Resources() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {resources.map(resource => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
+          {resources.map(resource => <ResourceCard key={resource.id} resource={resource} />)}
         </div>
       )}
     </div>
@@ -122,32 +109,21 @@ function ResourceCard({ resource }: { resource: any }) {
   const [editTopicName, setEditTopicName] = useState(resource.topicName);
   const [editUrl, setEditUrl] = useState(resource.url);
   const [editIsPaid, setEditIsPaid] = useState(resource.isPaid);
+  const [showDelete, setShowDelete] = useState(false);
 
   const handleUpdate = () => {
     updateResource.mutate({
       id: resource.id,
-      data: {
-        subjectName: editSubjectName,
-        topicName: editTopicName,
-        url: editUrl,
-        isPaid: editIsPaid
-      }
+      data: { subjectName: editSubjectName, topicName: editTopicName, url: editUrl, isPaid: editIsPaid }
     }, {
-      onSuccess: () => {
-        setIsEditing(false);
-        queryClient.invalidateQueries({ queryKey: getListResourcesQueryKey() });
-      }
+      onSuccess: () => { setIsEditing(false); queryClient.invalidateQueries({ queryKey: getListResourcesQueryKey() }); }
     });
   };
 
   const handleDelete = () => {
-    if (confirm("Delete this resource link?")) {
-      deleteResource.mutate({ id: resource.id }, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListResourcesQueryKey() });
-        }
-      });
-    }
+    deleteResource.mutate({ id: resource.id }, {
+      onSuccess: () => { setShowDelete(false); queryClient.invalidateQueries({ queryKey: getListResourcesQueryKey() }); }
+    });
   };
 
   if (isEditing) {
@@ -175,37 +151,48 @@ function ResourceCard({ resource }: { resource: any }) {
   }
 
   return (
-    <Card className="shadow-sm group overflow-hidden border-border/60 hover:border-primary/30 transition-colors">
-      <CardContent className="p-0">
-        <div className="flex items-stretch justify-between p-4 sm:p-5">
-          <div className="flex-1 min-w-0 pr-4">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-semibold text-primary uppercase tracking-wider">{resource.subjectName}</span>
-              <Badge variant={resource.isPaid ? "secondary" : "outline"} className="text-[10px] uppercase font-bold py-0.5 px-2">
-                {resource.isPaid ? "Paid" : "Free"}
-              </Badge>
+    <>
+      <Card className="shadow-sm group overflow-hidden border-border/60 hover:border-primary/30 transition-colors">
+        <CardContent className="p-0">
+          <div className="flex items-stretch justify-between p-4 sm:p-5">
+            <div className="flex-1 min-w-0 pr-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-semibold text-primary uppercase tracking-wider">{resource.subjectName}</span>
+                <Badge variant={resource.isPaid ? "secondary" : "outline"} className="text-[10px] uppercase font-bold py-0.5 px-2">
+                  {resource.isPaid ? "Paid" : "Free"}
+                </Badge>
+              </div>
+              <h3 className="text-lg font-medium text-foreground truncate">{resource.topicName}</h3>
+              <a href={resource.url} target="_blank" rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mt-2 inline-flex truncate max-w-full">
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{resource.url}</span>
+              </a>
             </div>
-            <h3 className="text-lg font-medium text-foreground truncate">{resource.topicName}</h3>
-            <a 
-              href={resource.url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mt-2 inline-flex truncate max-w-full"
-            >
-              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">{resource.url}</span>
-            </a>
+            <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition-opacity pl-2 border-l border-border/50">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setIsEditing(true)}>
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => setShowDelete(true)}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition-opacity pl-2 border-l border-border/50">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setIsEditing(true)}>
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this resource?</AlertDialogTitle>
+            <AlertDialogDescription>"{resource.topicName}" link will be permanently removed.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
